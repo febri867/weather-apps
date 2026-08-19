@@ -1,9 +1,13 @@
-import useHooks from "../useHooks";
+import type { WeatherData } from "../../../domain/weather";
+import {WEATHER_UNIT} from "../../../constants/weather";
 
-export default function Stats(){
-    const {
-        weather
-    } = useHooks()
+type Props = {
+  weather: WeatherData;
+};
+
+export default function Stats({
+  weather,
+}: Props) {
     return (
         <div className="mt-6 grid gap-6 md:grid-cols-3">
             <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
@@ -15,7 +19,7 @@ export default function Stats(){
                         weather?.weather
                             .humidity
                     }
-                    %
+                    {WEATHER_UNIT.HUMIDITY}
                 </h3>
             </div>
 
@@ -30,7 +34,7 @@ export default function Stats(){
                     }
                     <span className="text-lg">
                     {" "}
-                        km/h
+                        {WEATHER_UNIT.WIND_SPEED}
                   </span>
                 </h3>
             </div>
@@ -44,7 +48,7 @@ export default function Stats(){
                         weather?.weather
                             .feelsLike
                     }
-                    °
+                    {WEATHER_UNIT.TEMPERATURE}
                 </h3>
             </div>
         </div>

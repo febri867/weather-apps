@@ -1,87 +1,64 @@
-import { render, screen } from '@testing-library/react';
-import LocationCard from '../LocationCard';
-import useHooks from '../../useHooks';
+import { render, screen } from "@testing-library/react";
+import LocationCard from "../LocationCard";
+import type { WeatherData } from "../../../../domain/weather";
 
-jest.mock('../../useHooks');
+const mockWeather: WeatherData = {
+  city: "Special Capital Region of Jakarta, Indonesia",
+  latitude: -6.1754049,
+  longitude: 106.827168,
+  timezone: "Asia/Jakarta",
+  localTime: "Tuesday, August 19, 2026 at 3:00 PM",
+  weather: {
+    temperature: 30,
+    feelsLike: 33,
+    humidity: 70,
+    windSpeed: 10,
+    description: "Sunny",
+  },
+};
 
-const mockedUseHooks = useHooks as jest.MockedFunction<
-  typeof useHooks
->;
-
-describe('LocationCard', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it('renders location information', () => {
-    mockedUseHooks.mockReturnValue({
-      weather: {
-        city: 'Jakarta',
-        timezone: 'Asia/Jakarta',
-        localTime: '2026-08-19 09:00',
-        latitude: -6.2088,
-        longitude: 106.8456,
-      },
-    } as any);
-
-    render(<LocationCard />);
+describe("LocationCard", () => {
+  it("renders location title", () => {
+    render(<LocationCard weather={mockWeather} />);
 
     expect(
-      screen.getByText('Location'),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByText('Jakarta'),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByText('Asia/Jakarta'),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByText('2026-08-19 09:00'),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByText('-6.2088, 106.8456'),
+      screen.getByText("Location")
     ).toBeInTheDocument();
   });
 
-  it('renders labels', () => {
-    mockedUseHooks.mockReturnValue({
-      weather: {
-        city: 'Jakarta',
-        timezone: 'Asia/Jakarta',
-        localTime: '2026-08-19 09:00',
-        latitude: -6.2088,
-        longitude: 106.8456,
-      },
-    } as any);
-
-    render(<LocationCard />);
+  it("renders city name", () => {
+    render(<LocationCard weather={mockWeather} />);
 
     expect(
-      screen.getByText('Timezone'),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByText('Local Time'),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByText('Coordinates'),
+      screen.getByText(
+        "Special Capital Region of Jakarta, Indonesia"
+      )
     ).toBeInTheDocument();
   });
 
-  it('renders empty values when weather is undefined', () => {
-    mockedUseHooks.mockReturnValue({
-      weather: undefined,
-    } as any);
-
-    render(<LocationCard />);
+  it("renders timezone", () => {
+    render(<LocationCard weather={mockWeather} />);
 
     expect(
-      screen.getByText('Location'),
+      screen.getByText("Asia/Jakarta")
+    ).toBeInTheDocument();
+  });
+
+  it("renders local time", () => {
+    render(<LocationCard weather={mockWeather} />);
+
+    expect(
+      screen.getByText(
+        "Tuesday, August 19, 2026 at 3:00 PM"
+      )
+    ).toBeInTheDocument();
+  });
+
+  it("renders formatted coordinates", () => {
+    render(<LocationCard weather={mockWeather} />);
+
+    expect(
+      screen.getByText("-6.1754, 106.8272")
     ).toBeInTheDocument();
   });
 });

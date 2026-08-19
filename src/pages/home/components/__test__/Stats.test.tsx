@@ -1,84 +1,58 @@
-import { render, screen } from '@testing-library/react';
-import { jest } from '@jest/globals';
-import Stats from '../Stats';
-import useHooks from '../../useHooks';
+import { render, screen } from "@testing-library/react";
+import Stats from "../Stats";
+import type { WeatherData } from "../../../../domain/weather";
 
-jest.mock('../../useHooks');
+const mockWeather: WeatherData = {
+  city: "Jakarta",
+  latitude: -6.1754,
+  longitude: 106.8272,
+  timezone: "Asia/Jakarta",
+  localTime: "Tuesday, August 19, 2026",
+  weather: {
+    temperature: 30,
+    feelsLike: 33,
+    humidity: 70,
+    windSpeed: 10,
+    description: "Sunny",
+  },
+};
 
-const mockedUseHooks = useHooks as jest.MockedFunction<
-  typeof useHooks
->;
-
-describe('Stats', () => {
+describe("Stats", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    render(<Stats weather={mockWeather} />);
   });
 
-  it('renders humidity, wind speed and feels like values', () => {
-    mockedUseHooks.mockReturnValue({
-      weather: {
-        weather: {
-          humidity: 80,
-          windSpeed: 15,
-          feelsLike: 32,
-        },
-      },
-    } as any);
-
-    render(<Stats />);
+  it("renders humidity section", () => {
+    expect(
+      screen.getByText("Humidity")
+    ).toBeInTheDocument();
 
     expect(
-      screen.getByText('Humidity'),
-    ).toBeTruthy();
-
-    expect(
-      screen.getByText('Wind Speed'),
-    ).toBeTruthy();
-
-    expect(
-      screen.getByText('Feels Like'),
-    ).toBeTruthy();
-
-    expect(
-      screen.getByText('80%'),
-    ).toBeTruthy();
-
-    expect(
-      screen.getByText(/15/i),
-    ).toBeTruthy();
-
-    expect(
-      screen.getByText(/km\/h/i),
-    ).toBeTruthy();
-
-    expect(
-      screen.getByText('32°'),
-    ).toBeTruthy();
+      screen.getByText("70%")
+    ).toBeInTheDocument();
   });
 
-  it('renders labels correctly', () => {
-    mockedUseHooks.mockReturnValue({
-      weather: {
-        weather: {
-          humidity: 65,
-          windSpeed: 10,
-          feelsLike: 28,
-        },
-      },
-    } as any);
-
-    render(<Stats />);
+  it("renders wind speed section", () => {
+    expect(
+      screen.getByText("Wind Speed")
+    ).toBeInTheDocument();
 
     expect(
-      screen.getByText('Humidity'),
-    ).toBeTruthy();
+      screen.getByText(/10/i)
+    ).toBeInTheDocument();
 
     expect(
-      screen.getByText('Wind Speed'),
-    ).toBeTruthy();
+      screen.getByText("km/h")
+    ).toBeInTheDocument();
+  });
+
+  it("renders feels like section", () => {
+    expect(
+      screen.getByText("Feels Like")
+    ).toBeInTheDocument();
 
     expect(
-      screen.getByText('Feels Like'),
-    ).toBeTruthy();
+      screen.getByText("33°")
+    ).toBeInTheDocument();
   });
 });

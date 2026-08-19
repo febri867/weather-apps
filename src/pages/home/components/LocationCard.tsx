@@ -1,9 +1,11 @@
-import useHooks from "../useHooks";
+import type { WeatherData } from "../../../domain/weather";
+type Props = {
+  weather: WeatherData;
+};
+export default function LocationCard({
+ weather,
+}: Props) {
 
-export default function LocationCard(){
-    const {
-        weather
-    } = useHooks()
     return (
         <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
             <h3 className="text-lg font-semibold">

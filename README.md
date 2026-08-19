@@ -1,38 +1,32 @@
-# 🌦️ Weather Apps
+# 🌦️ Weather Dashboard
 
-A modern weather dashboard built with **React**, **TypeScript**, and **Vite**, integrating data from **OpenStreetMap Nominatim** and **wttr.in**.
+A production-oriented weather dashboard built with React, TypeScript, and Vite.
 
-This project was developed with a strong focus on:
+The application retrieves geolocation data from OpenStreetMap Nominatim and current weather conditions from wttr.in, transforming external API responses into stable domain models through a dedicated service and repository layer.
 
-- Clean Architecture
-- Separation of Concerns
-- Reusable Components
-- Testability
-- Responsive Design
-- Type Safety
-- Developer Experience
+The project emphasizes maintainability, scalability, testability, and separation of concerns while keeping the user experience fast and responsive.
 
 ---
 
-## ✨ Features
+# ✨ Key Features
 
-### Weather Search
+## Weather Search
 
-Search weather information by city name using OpenStreetMap Nominatim.
+Search weather information by city name.
 
-### Real-Time Weather Data
+## Current Weather Conditions
 
-Retrieve current weather conditions from wttr.in including:
+Display:
 
 - Temperature
-- Feels Like
+- Feels Like Temperature
 - Humidity
 - Wind Speed
 - Weather Description
 
-### Location Information
+## Location Intelligence
 
-Display location metadata:
+Display:
 
 - Full Location Name
 - Latitude
@@ -40,51 +34,89 @@ Display location metadata:
 - Timezone
 - Local Time
 
-### Responsive UI
+## Responsive Experience
 
-Fully responsive layout optimized for:
+Optimized for:
 
-- Mobile Devices
-- Tablets
-- Desktop Screens
+- Mobile
+- Tablet
+- Desktop
 
-### Unit Testing
+## Error Resilience
 
-Comprehensive test coverage using:
+Includes:
 
-- Jest
-- React Testing Library
+- API Error Handling
+- Runtime Error Boundary
+- Request Cancellation
+- Graceful UI Recovery
+
+## Performance Optimization
+
+Includes:
+
+- React Query
+- Request Deduplication
+- Automatic Retry Strategy
+- Smart Caching
+- Memoized Presentation Components
 
 ---
 
-# 🏗️ Architecture
+# 🏛️ Architecture
 
-The project follows a lightweight domain-driven structure.
+The application follows a layered architecture inspired by Domain-Driven Design and Clean Architecture principles.
 
 ```text
 src
 │
-├── component
-│   ├── header
-│   └── searchInput
+├── components
+│   ├── ErrorBoundary
+│   ├── Header
+│   ├── SearchInput
+│   └── WeatherSkeleton
+│
+├── constants
+│   ├── queryKeys.ts
+│   └── weather.ts
+│
+├── config
+│   └── env.ts
 │
 ├── domain
 │   └── weather.ts
 │
+├── errors
+│   ├── LocationNotFoundError.ts
+│   └── WeatherApiError.ts
+│
+├── hooks
+│   └── useWeather.ts
+│
+├── repositories
+│   └── weather.repository.ts
+│
+├── services
+│   ├── interfaces
+│   │   └── WeatherService.ts
+│   │
+│   ├── mappers
+│   │   └── weather.mapper.ts
+│   │
+│   ├── geocoding.service.ts
+│   └── weather.service.ts
+│
+├── types
+│   ├── geocoding.ts
+│   └── weather.ts
+│
+├── utils
+│   ├── logger.ts
+│   └── weatherIcon.ts
+│
 ├── pages
 │   └── home
 │       ├── components
-│       │   ├── TemperatureCard.tsx
-│       │   ├── LocationCard.tsx
-│       │   └── Stats.tsx
-│       │
-│       ├── __test__
-│       │   ├── TemperatureCard.test.tsx
-│       │   ├── LocationCard.test.tsx
-│       │   ├── Stats.test.tsx
-│       │   └── useHooks.test.tsx
-│       │
-│       ├── useHooks.ts
 │       └── index.tsx
 │
 ├── App.tsx
@@ -94,121 +126,189 @@ src
 
 ---
 
-# 📂 Folder Responsibilities
+# 📦 Layer Responsibilities
 
-## domain
+## Domain Layer
 
-Contains business entities and type definitions.
+Contains application business models.
 
-```typescript
-weather.ts
+```ts
+WeatherData
+```
+
+The UI never consumes raw API responses directly.
+
+Benefits:
+
+- Stable contracts
+- Type safety
+- Easier refactoring
+- Decoupled presentation layer
+
+---
+
+## Service Layer
+
+Responsible for external integrations.
+
+### geocoding.service.ts
+
+Handles:
+
+- OpenStreetMap requests
+- Response validation
+- Error mapping
+
+### weather.service.ts
+
+Handles:
+
+- wttr.in requests
+- Weather DTO retrieval
+- Transport concerns
+
+Services know how to communicate with external systems.
+
+They do not contain presentation logic.
+
+---
+
+## Repository Layer
+
+Responsible for orchestrating multiple services.
+
+```text
+Weather Repository
+        │
+        ├── Geocoding Service
+        └── Weather Service
 ```
 
 Responsibilities:
 
-- Weather Interfaces
-- Domain Models
-- Shared Type Definitions
+- Aggregate external data
+- Coordinate multiple APIs
+- Return domain models
 
-This layer contains no UI logic.
-
----
-
-## component
-
-Reusable UI components shared across pages.
-
-### Header
-
-Responsible for:
-
-- Application Branding
-- Page Title
-
-### SearchInput
-
-Responsible for:
-
-- User Input
-- Search Trigger
-
-Designed to be reusable and independent.
+This keeps hooks and UI independent from infrastructure details.
 
 ---
 
-## pages/home
+## Mapper Layer
 
-Feature-based module for Weather Dashboard.
-
-Contains:
-
-### TemperatureCard
-
-Responsible for:
-
-- Current Temperature
-- Weather Description
-- Feels Like Temperature
-
-### LocationCard
-
-Responsible for:
-
-- Location Information
-- Coordinates
-- Timezone
-- Local Time
-
-### Stats
-
-Responsible for:
-
-- Humidity
-- Wind Speed
-- Additional Metrics
-
-### useHooks
-
-Responsible for:
-
-- API Calls
-- State Management
-- Data Transformation
-- Error Handling
-
-This keeps UI components purely presentational.
-
----
-
-# 🔄 Data Flow
+Responsible for transforming:
 
 ```text
-User Input
-     │
-     ▼
-SearchInput
-     │
-     ▼
-useHooks
-     │
-     ├── OpenStreetMap Nominatim
-     │
-     └── wttr.in
-     │
-     ▼
-Weather Domain Model
-     │
-     ▼
+External DTO
+       ↓
+Domain Entity
+```
+
+Example:
+
+```text
+WeatherDto
+       ↓
+WeatherData
+```
+
+Benefits:
+
+- API changes remain isolated
+- UI contracts remain stable
+
+---
+
+## Hook Layer
+
+### useWeather
+
+Responsible for:
+
+- User interactions
+- Request execution
+- Loading states
+- Error states
+- React Query integration
+
+No API implementation details exist in the UI.
+
+---
+
+## Presentation Layer
+
+Contains pure components.
+
+Examples:
+
+```text
+TemperatureCard
+LocationCard
+Stats
+```
+
+Responsibilities:
+
+- Render data
+- User interaction
+- Accessibility
+
+No business logic.
+
+---
+
+# 🔄 Request Flow
+
+```text
+User Search
+      │
+      ▼
+useWeather
+      │
+      ▼
+Weather Repository
+      │
+      ├── Geocoding Service
+      │
+      └── Weather Service
+      │
+      ▼
+DTO Mapper
+      │
+      ▼
+Domain Entity
+      │
+      ▼
 Presentation Components
-     │
-     ├── TemperatureCard
-     ├── LocationCard
-     └── Stats
 ```
 
 ---
 
-# 🌐 External APIs
+# ⚡ State Management Strategy
+
+The application follows a single source of truth approach.
+
+```text
+useWeather
+      │
+      ▼
+Parent Component
+      │
+      ▼
+Presentational Components
+```
+
+No duplicated state exists across components.
+
+This avoids:
+
+- State divergence
+- Unnecessary re-renders
+- Hidden side effects
+
+---
+
+# 🌐 External Services
 
 ## OpenStreetMap Nominatim
 
@@ -217,7 +317,7 @@ Used for geocoding.
 Example:
 
 ```http
-GET https://nominatim.openstreetmap.org/search?q=jakarta&format=jsonv2
+GET /search?q=jakarta&format=jsonv2
 ```
 
 Returns:
@@ -238,259 +338,296 @@ Used for weather information.
 Example:
 
 ```http
-GET https://wttr.in/Jakarta?format=j1
+GET /Jakarta?format=j1
 ```
 
-Returns:
+Returns weather metadata including:
 
-```json
-{
-  "current_condition": []
-}
+- Temperature
+- Humidity
+- Wind Speed
+- Description
+
+---
+
+# 🚀 Performance Optimizations
+
+## React Query
+
+Provides:
+
+- Caching
+- Request deduplication
+- Automatic retries
+- Background updates
+
+---
+
+## AbortController
+
+Cancels stale requests when users perform multiple searches rapidly.
+
+Prevents:
+
+- Race conditions
+- Unnecessary network usage
+
+---
+
+## Memoized Components
+
+Presentation components use memoization where appropriate to reduce unnecessary renders.
+
+---
+
+## Lazy Loading Ready
+
+Architecture supports route-level and component-level code splitting.
+
+---
+
+# 🛡 Error Handling Strategy
+
+## Custom Domain Errors
+
+```text
+LocationNotFoundError
+WeatherApiError
 ```
+
+Allows error-specific UI behavior.
+
+---
+
+## Error Boundary
+
+Protects the application from runtime rendering failures.
+
+```text
+Unexpected Render Error
+        ↓
+Fallback UI
+```
+
+---
+
+## API Failure Recovery
+
+The application gracefully handles:
+
+- Network failures
+- Invalid responses
+- Empty results
+- Service unavailability
 
 ---
 
 # 🧪 Testing Strategy
 
-The project includes unit tests for:
+The project prioritizes testing business behavior rather than implementation details.
 
-## Components
+## Unit Tests
 
-### TemperatureCard
-
-Tests:
-
-- Temperature rendering
-- Weather description rendering
-- Feels-like rendering
-
-### LocationCard
+### Repository Layer
 
 Tests:
 
-- City display
-- Coordinate display
-- Timezone display
+- Service orchestration
+- Data aggregation
+- Domain mapping
 
-### Stats
-
-Tests:
-
-- Humidity rendering
-- Wind speed rendering
-
----
-
-## Hooks
-
-### useHooks
+### Mapper Layer
 
 Tests:
 
-- Successful API fetch
+- DTO transformations
+- Domain consistency
+
+### Hook Layer
+
+Tests:
+
 - Loading states
-- Error states
-- Data transformation
-- API failure handling
+- Error handling
+- Successful requests
+
+### Presentation Layer
+
+Tests:
+
+- User-visible rendering
+- Accessibility behavior
 
 ---
 
-## Current Result
+# ⚙️ Developer Experience
+
+## TypeScript
+
+Strict typing across all layers.
+
+## ESLint
+
+Static code analysis.
+
+## Prettier
+
+Consistent formatting.
+
+## Environment Variables
+
+Configuration is isolated through:
+
+```env
+VITE_GEOCODING_API_URL
+VITE_WEATHER_API_URL
+```
+
+## CI/CD
+
+GitHub Actions pipeline validates:
 
 ```bash
-Test Suites: 6 passed, 6 total
-Tests:       19 passed, 19 total
-Snapshots:   0 total
+pnpm lint
+pnpm __test__
+pnpm build
 ```
 
-Achieving:
-
-✅ 100% successful execution
+before changes are merged.
 
 ---
 
-# 🎨 UI Design Principles
-
-The interface was designed following modern dashboard patterns inspired by:
-
-- Linear
-- Vercel
-- Stripe Dashboard
-- Apple Weather
-
-Design considerations:
-
-### Visual Hierarchy
-
-Large temperature section to emphasize primary information.
-
-### Information Grouping
-
-Separate cards for:
-
-- Temperature
-- Location
-- Statistics
-
-### Mobile First
-
-Responsive breakpoints:
-
-```text
-Mobile
-↓
-Tablet
-↓
-Desktop
-```
-
-### Accessibility
-
-Considerations include:
-
-- Semantic HTML
-- Readable contrast
-- Consistent spacing
-- Clear visual grouping
-
----
-
-# ⚙️ Tech Stack
+# 📊 Tech Stack
 
 | Category | Technology |
 |-----------|------------|
 | Framework | React 19 |
 | Language | TypeScript |
 | Build Tool | Vite |
-| Styling | CSS / Tailwind Ready |
+| State Management | React Query |
+| Styling | Tailwind CSS |
 | Testing | Jest |
-| Testing Library | React Testing Library |
+| Testing Utilities | React Testing Library |
 | Linting | ESLint |
 | Formatting | Prettier |
+| CI/CD | GitHub Actions |
 
 ---
 
-# 🚀 Installation
+# 🚀 Getting Started
 
-Install dependencies:
+## Installation
 
 ```bash
 pnpm install
 ```
 
-Run development server:
+## Environment Variables
+
+Create:
+
+```env
+.env
+```
+
+```env
+VITE_GEOCODING_API_URL=https://nominatim.openstreetmap.org
+VITE_WEATHER_API_URL=https://wttr.in
+```
+
+## Start Development Server
 
 ```bash
 pnpm dev
 ```
 
+## Production Build
+
+```bash
+pnpm build
+```
+
+## Run Tests
+
+```bash
+pnpm __test__
+```
+
+## Coverage
+
+```bash
+pnpm __test__ --coverage
+```
+
 ---
 
-# 🧪 Run Tests
+# 🔮 Roadmap
 
-```bash
-pnpm test
-```
+## Near-Term Improvements
 
-Watch mode:
+### Search Experience
 
-```bash
-pnpm test --watch
-```
+- Debounced Search
+- Search History
+- Recent Locations
 
-Coverage:
-
-```bash
-pnpm test --coverage
-```
-
----
-
-# 📈 Future Improvements
-
-Potential enhancements:
-
-### Weather Forecast
+### Weather Enhancements
 
 - Hourly Forecast
 - 7-Day Forecast
+- Weather Alerts
 
-### Data Visualization
+### Mapping
 
-- Temperature Trend Charts
-- Humidity Charts
-- Wind Speed Charts
+- Interactive OpenStreetMap
+- Reverse Geocoding
+- Current User Location
 
 ### User Experience
 
-- Dark Mode
-- Theme Switching
-- Skeleton Loading
+- Dark / Light Theme
+- Persistent Preferences
+- Animated Weather States
+
+---
+
+## Engineering Improvements
+
+### Observability
+
+- Sentry Integration
+- Datadog Logging
+- Performance Monitoring
+
+### Data Validation
+
+- Runtime Schema Validation
+- Contract Testing
+- API Response Guards
 
 ### Performance
 
-- API Caching
-- Debounced Search
-- React Query Integration
+- Route-Based Code Splitting
+- Virtualized Lists
+- Service Worker Caching
 
-### Maps
+### Quality Assurance
 
-- OpenStreetMap Integration
-- Interactive Location Selection
+- E2E Testing with Playwright
+- Visual Regression Testing
+- Accessibility Auditing
 
----
+### Architecture
 
-# 🔥 Engineering Decisions
-
-### Why Custom Hook?
-
-To separate:
-
-```text
-Business Logic
-        ≠
-Presentation Logic
-```
-
-Benefits:
-
-- Easier Testing
-- Better Reusability
-- Cleaner Components
-
----
-
-### Why Small Presentational Components?
-
-Instead of one large page component:
-
-```text
-TemperatureCard
-LocationCard
-Stats
-```
-
-Benefits:
-
-- Better Maintainability
-- Easier Unit Testing
-- Improved Readability
-
----
-
-### Why Domain Layer?
-
-To avoid coupling API responses directly to UI.
-
-Benefits:
-
-- Strong Type Safety
-- Easier Refactoring
-- Better Scalability
+- Dependency Injection Container
+- Repository Interfaces
+- Multi Weather Provider Support
+- Offline First Capability
 
 ---
 
 # 👨‍💻 Author
 
-Febri Ramadhan
+**Febri Ramadhan**
+
+React • TypeScript • Next.js • Frontend Architecture

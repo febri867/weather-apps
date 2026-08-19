@@ -1,37 +1,60 @@
-import useHooks from "./useHooks.ts";
-import Header from "../../component/header";
-import SearchInput from "../../component/searchInput";
-import TemperatureCard from "./components/TemperatureCard.tsx";
-import LocationCard from "./components/LocationCard.tsx";
-import Stats from "./components/Stats.tsx";
+import useWeather from "../../hooks/useWeather";
+
+import Header from "../../components/header";
+import SearchInput from "../../components/searchInput";
+
+import TemperatureCard from "./components/TemperatureCard";
+import LocationCard from "./components/LocationCard";
+import Stats from "./components/Stats";
+import WeatherSkeleton from "../../components/weatherSkeleton";
 
 export default function WeatherDashboard() {
-  const {
-      city,
-      loading,
-      weather,
-      setCity,
-      searchWeather
-  } = useHooks()
+    const {
+        city,
+        setCity,
+        loading,
+        weather,
+        error,
+        searchWeather,
+    } = useWeather();
 
     return (
         <div className="min-h-screen bg-zinc-950 text-white">
             <div className="mx-auto max-w-7xl p-6">
-               <Header/>
-                <SearchInput city={city} setCity={setCity} searchWeather={searchWeather} loading={loading}/>
+                <Header />
+
+                <SearchInput
+                    city={city}
+                    setCity={setCity}
+                    searchWeather={searchWeather}
+                    loading={loading}
+                />
+
+                {error && (
+                    <div className="mt-4 rounded-lg bg-red-500/10 p-4 text-red-400">
+                        {error}
+                    </div>
+                )}
+
+                {
+                    loading && (
+                        <WeatherSkeleton />
+                    )
+                }
 
                 {weather && (
                     <>
-                        {/* Main Section */}
                         <div className="grid gap-6 lg:grid-cols-3">
-                            {/* Temperature Card */}
-                            <TemperatureCard/>
-                            {/* Location Card */}
-                            <LocationCard/>
+                            <TemperatureCard
+                                weather={weather}
+                            />
+
+                            <LocationCard
+                                weather={weather}
+                            />
                         </div>
 
-                        {/* Stats */}
-                        <Stats/>
+                        <Stats weather={weather} />
                     </>
                 )}
             </div>
